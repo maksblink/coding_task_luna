@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Hydroponiczny</title>
+</head>
+<body>
+    <h1>Witaj w systemie hydroponicznym!</h1>
+
+    {% if user.is_authenticated %}
+        <h2>{{ user.username }} Twoje Systemy Hydroponiczne:</h2>
+        <ul>
+            {% for system in systems %}
+                <li>{{ system.name }}</li>
+            {% empty %}
+                <li>Nie masz jeszcze żadnych systemów.</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Formularz wylogowania zamiast linku -->
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">🚪 Wyloguj się</button>
+        </form>
+
+    {% else %}
+        <p>Nie jesteś zalogowany. Zaloguj się lub zarejestruj, aby zarządzać swoimi systemami hydroponicznymi.</p>
+        <a href="{% url 'login' %}">🔑 Zaloguj się</a> |
+        <a href="{% url 'register' %}">📝 Zarejestruj się</a>
+    {% endif %}
+</body>
+</html>

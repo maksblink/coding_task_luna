@@ -6,12 +6,12 @@
     <title>Logowanie</title>
 </head>
 <body>
-    <h2>Zaloguj się</h2>
-    <form method="POST">
+    <h1>Zaloguj się</h1>
+    <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Zaloguj</button>
+        <button type="submit">🔑 Zaloguj</button>
     </form>
-    <a href="{% url 'register' %}">Nie masz konta? Zarejestruj się</a>
+    <p>Nie masz konta? <a href="{% url 'register' %}">Zarejestruj się</a></p>
 </body>
 </html>
