@@ -1,13 +1,13 @@
 from rest_framework import viewsets, permissions
-from .models import System, Measurement
-from .serializers import SystemSerializer, MeasurementSerializer
+from .models import HydroponicSystem, Measurement
+from .serializers import HydroponicSystemSerializer, MeasurementSerializer
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import UserRegisterForm
 
 
-class SystemViewSet(viewsets.ModelViewSet):
-    serializer_class = SystemSerializer
+class HydroponicSystemViewSet(viewsets.ModelViewSet):
+    serializer_class = HydroponicSystemSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -25,11 +25,6 @@ class MeasurementViewSet(viewsets.ModelViewSet):
         return Measurement.objects.filter(system__owner=self.request.user)
 
 
-def system_list(request):
-    systems = System.objects.all()
-    return render(request, 'systems/list.html', {'systems': systems})
-
-
 def register(request):
     if request.method == "POST":
         form = UserRegisterForm(request.POST)
@@ -44,5 +39,5 @@ def register(request):
 
 
 def home(request):
-    systems = System.objects.filter(owner=request.user) if request.user.is_authenticated else []
+    systems = HydroponicSystem.objects.filter(owner=request.user) if request.user.is_authenticated else []
     return render(request, 'home.html', {'systems': systems})
