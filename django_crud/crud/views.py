@@ -72,7 +72,7 @@ def register(request):
 
 @login_required
 def home(request):
-    hydroponic_systems = HydroponicSystem.objects.all()
+    hydroponic_systems = HydroponicSystem.objects.filter(owner=request.user)
     return render(request, "home.html", {"hydroponic_systems": hydroponic_systems})
 
 
@@ -93,13 +93,6 @@ def delete_hydroponic_system(request, hydroponic_system_id):
     hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
     hydroponic_system.delete()
     return redirect('home')
-
-
-class HydroponicSystemListView(generics.ListAPIView):
-    serializer_class = HydroponicSystemSerializer
-
-    def get_queryset(self):
-        return HydroponicSystem.objects.filter(owner=self.request.user)
 
 
 class MeasurementListView(generics.ListAPIView):
@@ -128,9 +121,9 @@ def add_hydroponic_system(request):
 
 @login_required
 def hydroponic_system_detail(request, hydroponic_system_id):
-    system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
+    hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
 
-    measurements = Measurement.objects.filter(sensor__hydroponic_system=system)
+    measurements = Measurement.objects.filter(sensor__hydroponic_system=hydroponic_system)
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -164,8 +157,8 @@ def hydroponic_system_detail(request, hydroponic_system_id):
     recent_measurements = measurements.order_by('-timestamp')[:10]
 
     return render(request, "hydroponic_system_detail.html", {
-        "hydroponic_system": system,
-        "sensors": system.sensors.all(),
+        "hydroponic_system": hydroponic_system,
+        "sensors": hydroponic_system.sensors.all(),
         "measurements": page_obj,
         "recent_measurements": recent_measurements,
         "start_date": request.GET.get('start_date', ''),
