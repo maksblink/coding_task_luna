@@ -1,10 +1,13 @@
-from rest_framework import viewsets, permissions, status
-from .serializers import HydroponicSystemSerializer, MeasurementSerializer, SensorSerializer
+from rest_framework import viewsets, permissions, status, generics, filters
+from .serializers import HydroponicSystemSerializer, MeasurementSerializer, SensorSerializer, HydroponicSystemDetailSerializer
 from django.contrib import messages
 from .forms import UserRegisterForm, HydroponicSystemForm
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.response import Response
 from .models import Sensor, Measurement, HydroponicSystem
+from django_filters.rest_framework import DjangoFilterBackend
+from .pagination import StandardResultsSetPagination
+from .filters import MeasurementFilter
 
 
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
@@ -99,3 +102,24 @@ def delete_hydroponic_system(request, hydroponic_system_id):
     hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
     hydroponic_system.delete()
     return redirect('home')
+
+
+class HydroponicSystemListView(generics.ListAPIView):
+    serializer_class = HydroponicSystemSerializer
+
+    def get_queryset(self):
+        return HydroponicSystem.objects.filter(owner=self.request.user)
+
+
+class HydroponicSystemDetailView(generics.RetrieveAPIView):
+    queryset = HydroponicSystem.objects.all()
+    serializer_class = HydroponicSystemDetailSerializer
+
+
+class MeasurementListView(generics.ListAPIView):
+    queryset = Measurement.objects.all()
+    serializer_class = MeasurementSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = MeasurementFilter
+    ordering_fields = ['timestamp', 'value']

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import HydroponicSystemViewSet, MeasurementViewSet, SensorViewSet, home, update_hydroponic_system, delete_hydroponic_system
+from .views import HydroponicSystemViewSet, MeasurementViewSet, SensorViewSet, home, update_hydroponic_system, delete_hydroponic_system, HydroponicSystemListView, HydroponicSystemDetailView, MeasurementListView
 from rest_framework.authtoken.views import obtain_auth_token
 
 
@@ -15,4 +15,7 @@ urlpatterns = [
     path('', home, name='home'),
     path("systems/update/<int:hydroponic_system_id>/", update_hydroponic_system, name="update_hydroponic_system"),
     path("systems/delete/<int:hydroponic_system_id>/", delete_hydroponic_system, name="delete_hydroponic_system"),
+    path('systems/', HydroponicSystemListView.as_view(), name='system-list'),
+    path('systems/<int:pk>/', HydroponicSystemDetailView.as_view(), name='system-detail'),
+    path('measurements/', MeasurementListView.as_view(), name='measurement-list'),
 ]
