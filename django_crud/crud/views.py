@@ -1,17 +1,14 @@
-from rest_framework import viewsets, permissions, generics, filters
-from .serializers import HydroponicSystemSerializer, MeasurementSerializer, SensorSerializer, HydroponicSystemDetailSerializer
+from rest_framework import viewsets, permissions, generics, filters, serializers
+from .serializers import HydroponicSystemSerializer, SensorSerializer, MeasurementSerializer
 from django.contrib import messages
-from .forms import UserRegisterForm
-from .models import Sensor
 from django_filters.rest_framework import DjangoFilterBackend
 from .pagination import StandardResultsSetPagination
 from .filters import MeasurementFilter
-from django.shortcuts import render, redirect
-from .forms import HydroponicSystemForm, MeasurementForm
+from .forms import HydroponicSystemForm, MeasurementForm, UserRegisterForm
 from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import HydroponicSystem, Measurement
+from .models import HydroponicSystem, Measurement, Sensor
 from django.utils.dateparse import parse_datetime
 
 
@@ -52,7 +49,7 @@ class MeasurementViewSet(viewsets.ModelViewSet):
         return Measurement.objects.filter(sensor__hydroponic_system__owner=self.request.user)
 
     def perform_create(self, serializer):
-        sensor = serializer.validated_data['sensor']
+        sensor = serializer.validated_data.get('sensor')
 
         if sensor.hydroponic_system.owner != self.request.user:
             raise serializers.ValidationError({"error": "Nie masz dostępu do tego sensora."})
@@ -103,11 +100,6 @@ class HydroponicSystemListView(generics.ListAPIView):
 
     def get_queryset(self):
         return HydroponicSystem.objects.filter(owner=self.request.user)
-
-
-class HydroponicSystemDetailView(generics.RetrieveAPIView):
-    queryset = HydroponicSystem.objects.all()
-    serializer_class = HydroponicSystemDetailSerializer
 
 
 class MeasurementListView(generics.ListAPIView):
