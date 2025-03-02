@@ -2,8 +2,8 @@ from rest_framework import viewsets, permissions
 from .models import HydroponicSystem, Measurement
 from .serializers import HydroponicSystemSerializer, MeasurementSerializer
 from django.contrib import messages
-from django.shortcuts import render, redirect
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, HydroponicSystemForm
+from django.shortcuts import render, redirect, get_object_or_404
 
 
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
@@ -11,7 +11,7 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return self.request.user.systems.all()
+        return HydroponicSystem.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -37,7 +37,41 @@ def register(request):
         form = UserRegisterForm()
     return render(request, "users/register.html", {"form": form})
 
-
 def home(request):
-    systems = HydroponicSystem.objects.filter(owner=request.user) if request.user.is_authenticated else []
-    return render(request, 'home.html', {'systems': systems})
+    hydroponic_systems_form = HydroponicSystemForm()
+
+    hydroponic_systems = None
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            hydroponic_systems_form = HydroponicSystemForm(request.POST)
+            if hydroponic_systems_form.is_valid():
+                hydroponic_system = hydroponic_systems_form.save(commit=False)
+                hydroponic_system.owner = request.user
+                hydroponic_system.save()
+                return redirect('home')
+
+        hydroponic_systems = HydroponicSystem.objects.filter(owner=request.user)
+
+    return render(request, "home.html", {
+        "hydroponic_systems_form": hydroponic_systems_form,
+        "hydroponic_systems": hydroponic_systems
+    })
+
+
+def update_hydroponic_system(request, hydroponic_system_id):
+    hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
+    if request.method == "POST":
+        hydroponic_systems_form = HydroponicSystemForm(request.POST, instance=hydroponic_system)
+        if hydroponic_systems_form.is_valid():
+            hydroponic_systems_form.save()
+            return redirect('home')
+    else:
+        hydroponic_systems_form = HydroponicSystemForm(instance=hydroponic_system)
+
+    return render(request, "update_hydroponic_system.html", {"hydroponic_systems_form": hydroponic_systems_form})
+
+
+def delete_hydroponic_system(request, hydroponic_system_id):
+    hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
+    hydroponic_system.delete()
+    return redirect('home')

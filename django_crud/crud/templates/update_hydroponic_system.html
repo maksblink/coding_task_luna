@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edytuj System Hydroponiczny</title>
+</head>
+<body>
+    <h1>Edytuj System Hydroponiczny</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ hydroponic_systems_form.as_p }}
+        <button type="submit">💾 Zapisz zmiany</button>
+    </form>
+    <a href="{% url 'home' %}">⬅ Powrót</a>
+</body>
+</html>

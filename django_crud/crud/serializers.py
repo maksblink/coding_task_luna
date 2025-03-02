@@ -7,10 +7,11 @@ class MeasurementSerializer(serializers.ModelSerializer):
         model = Measurement
         fields = '__all__'
 
+
 class HydroponicSystemSerializer(serializers.ModelSerializer):
     measurements = MeasurementSerializer(many=True, read_only=True)
 
     class Meta:
         model = HydroponicSystem
-        fields = ['id', 'name', 'owner', 'created_at', 'measurements']
-        read_only_fields = ['owner']
+        fields = ['id', 'owner', 'name', 'description', 'created_at', 'updated_at', 'measurements']
+        read_only_fields = ['owner', 'created_at', 'updated_at']

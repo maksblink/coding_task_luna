@@ -11,21 +11,31 @@
     {% if user.is_authenticated %}
         <h2>{{ user.username }} Twoje Systemy Hydroponiczne:</h2>
         <ul>
-            {% for system in systems %}
-                <li>{{ system.name }}</li>
+            {% for hydroponic_system in hydroponic_systems %}
+                <li>
+                    <strong>{{ hydroponic_system.name }}</strong> - {{ hydroponic_system.description }}
+                    <a href="{% url 'update_hydroponic_system' hydroponic_system.id %}">✏ Edytuj</a>
+                    <a href="{% url 'delete_hydroponic_system' hydroponic_system.id %}" onclick="return confirm('Na pewno usunąć?')">❌ Usuń</a>
+                </li>
             {% empty %}
                 <li>Nie masz jeszcze żadnych systemów.</li>
             {% endfor %}
         </ul>
 
-        <!-- Formularz wylogowania zamiast linku -->
+        <h2>Dodaj nowy system</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ hydroponic_systems_form.as_p }}
+            <button type="submit">Dodaj</button>
+        </form>
+
         <form action="{% url 'logout' %}" method="post">
             {% csrf_token %}
             <button type="submit">🚪 Wyloguj się</button>
         </form>
 
     {% else %}
-        <p>Nie jesteś zalogowany. Zaloguj się lub zarejestruj, aby zarządzać swoimi systemami hydroponicznymi.</p>
+        <p>Nie jesteś zalogowany. Zaloguj się lub zarejestruj.</p>
         <a href="{% url 'login' %}">🔑 Zaloguj się</a> |
         <a href="{% url 'register' %}">📝 Zarejestruj się</a>
     {% endif %}
