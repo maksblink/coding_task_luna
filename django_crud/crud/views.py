@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import HydroponicSystem
-from .forms import HydroponicSystemForm
+from .forms import HydroponicSystemForm, MeasurementForm
 
 
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
@@ -70,27 +70,6 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, "users/register.html", {"form": form})
-
-
-# def home(request):
-#     hydroponic_systems_form = HydroponicSystemForm()
-#
-#     hydroponic_systems = None
-#     if request.user.is_authenticated:
-#         if request.method == "POST":
-#             hydroponic_systems_form = HydroponicSystemForm(request.POST)
-#             if hydroponic_systems_form.is_valid():
-#                 hydroponic_system = hydroponic_systems_form.save(commit=False)
-#                 hydroponic_system.owner = request.user
-#                 hydroponic_system.save()
-#                 return redirect('home')
-#
-#         hydroponic_systems = HydroponicSystem.objects.filter(owner=request.user)
-#
-#     return render(request, "home.html", {
-#         "hydroponic_systems_form": hydroponic_systems_form,
-#         "hydroponic_systems": hydroponic_systems
-#     })
 
 
 @login_required
@@ -152,3 +131,41 @@ def add_hydroponic_system(request):
         hydroponic_systems_form = HydroponicSystemForm()
 
     return render(request, "add_hydroponic_system.html", {"hydroponic_systems_form": hydroponic_systems_form})
+
+
+@login_required
+def hydroponic_system_detail(request, hydroponic_system_id):
+    hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
+    sensors = hydroponic_system.sensors.all()
+    measurements = Measurement.objects.filter(sensor__hydroponic_system=hydroponic_system).order_by('-timestamp')[:10]
+
+    return render(request, "hydroponic_system_detail.html", {
+        "hydroponic_system": hydroponic_system,
+        "sensors": sensors,
+        "measurements": measurements
+    })
+
+
+@login_required
+def add_measurement(request, hydroponic_system_id):
+    """Dodawanie nowego pomiaru do wybranego czujnika systemu"""
+    system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
+    sensors = system.sensors.all()
+
+    if request.method == "POST":
+        form = MeasurementForm(request.POST)
+        if form.is_valid():
+            measurement = form.save(commit=False)
+            if measurement.sensor.hydroponic_system != system:
+                form.add_error('sensor', "Nie masz dostępu do tego czujnika.")
+            else:
+                measurement.save()
+                return redirect('home')
+    else:
+        form = MeasurementForm()
+
+    return render(request, "add_measurement.html", {
+        "form": form,
+        "hydroponic_system": system,
+        "sensors": sensors
+    })

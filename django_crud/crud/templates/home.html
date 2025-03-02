@@ -16,6 +16,8 @@
                     <strong>{{ hydroponic_system.name }}</strong> - {{ hydroponic_system.description }}
                     <a href="{% url 'update_hydroponic_system' hydroponic_system.id %}">✏ Edytuj</a>
                     <a href="{% url 'delete_hydroponic_system' hydroponic_system.id %}" onclick="return confirm('Na pewno usunąć?')">❌ Usuń</a>
+                    <a href="{% url 'hydroponic_system_detail' hydroponic_system.id %}">👀 Zobacz szczegóły</a>
+                    <a href="{% url 'add_measurement' hydroponic_system.id %}">📥 Dodaj pomiar</a>
                 </li>
             {% empty %}
                 <li>Nie masz jeszcze żadnych systemów.</li>
