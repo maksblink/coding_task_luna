@@ -14,6 +14,10 @@ class HydroponicSystem(models.Model):
         return self.name
 
 
+def get_default_system():
+    return HydroponicSystem.objects.first().id
+
+
 class Sensor(models.Model):
     SYSTEM_SENSORS = [
         ('pH', 'pH Sensor'),
@@ -21,11 +25,11 @@ class Sensor(models.Model):
         ('TDS', 'Total Dissolved Solids Sensor')
     ]
 
-    hydroponic_system = models.ForeignKey(HydroponicSystem, on_delete=models.CASCADE, related_name='sensors', null=True, blank=True)
+    hydroponic_system = models.ForeignKey(HydroponicSystem, on_delete=models.CASCADE, related_name='sensors', default=get_default_system)
     sensor_type = models.CharField(max_length=20, choices=SYSTEM_SENSORS)
 
     def __str__(self):
-        return f"{self.sensor_type} - {self.system.name}"
+        return f"{self.sensor_type} - {self.hydroponic_system.name}"
 
 
 class Measurement(models.Model):

@@ -1,12 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import HydroponicSystemViewSet, MeasurementViewSet, home, update_hydroponic_system, delete_hydroponic_system
+from .views import HydroponicSystemViewSet, MeasurementViewSet, SensorViewSet, home, update_hydroponic_system, delete_hydroponic_system
 from rest_framework.authtoken.views import obtain_auth_token
 
 
 router = DefaultRouter()
 router.register(r'hydroponic_system', HydroponicSystemViewSet, basename='hydroponic_system')
 router.register(r'measurements', MeasurementViewSet, basename='measurement')
+router.register(r'sensors', SensorViewSet, basename='sensor')
 
 urlpatterns = [
     path('api/', include(router.urls)),

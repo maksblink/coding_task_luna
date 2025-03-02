@@ -1,9 +1,10 @@
-from rest_framework import viewsets, permissions
-from .models import HydroponicSystem, Measurement
-from .serializers import HydroponicSystemSerializer, MeasurementSerializer
+from rest_framework import viewsets, permissions, status
+from .serializers import HydroponicSystemSerializer, MeasurementSerializer, SensorSerializer
 from django.contrib import messages
 from .forms import UserRegisterForm, HydroponicSystemForm
 from django.shortcuts import render, redirect, get_object_or_404
+from rest_framework.response import Response
+from .models import Sensor, Measurement, HydroponicSystem
 
 
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
@@ -17,14 +18,32 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
+class SensorViewSet(viewsets.ModelViewSet):
+    serializer_class = SensorSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Sensor.objects.filter(hydroponic_system__owner=self.request.user)
+
+    def perform_create(self, serializer):
+        hydroponic_system = serializer.validated_data.get('hydroponic_system')
+        if hydroponic_system.owner != self.request.user:
+            raise serializers.ValidationError("Nie masz dostępu do tego systemu.")
+        serializer.save()
+
+
 class MeasurementViewSet(viewsets.ModelViewSet):
     serializer_class = MeasurementSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Measurement.objects.filter(system__owner=self.request.user)
+        return Measurement.objects.filter(sensor__hydroponic_system__owner=self.request.user)
 
-
+    def perform_create(self, serializer):
+        sensor = serializer.validated_data.get('sensor')
+        if sensor.hydroponic_system.owner != self.request.user:
+            raise serializers.ValidationError("Nie masz dostępu do tego sensora.")
+        serializer.save()
 def register(request):
     if request.method == "POST":
         form = UserRegisterForm(request.POST)
