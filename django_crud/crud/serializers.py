@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Measurement, Sensor, HydroponicSystem
-from django.utils.timezone import now
 
 
 class HydroponicSystemSerializer(serializers.ModelSerializer):
