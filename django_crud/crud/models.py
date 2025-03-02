@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.timezone import now
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class HydroponicSystem(models.Model):
@@ -30,6 +32,13 @@ class Sensor(models.Model):
 
     def __str__(self):
         return f"{self.sensor_type} - {self.hydroponic_system.name}"
+
+
+@receiver(post_save, sender=HydroponicSystem)
+def create_sensors(sender, instance, created, **kwargs):
+    if created:
+        for sensor_type, _ in Sensor.SYSTEM_SENSORS:
+            Sensor.objects.create(hydroponic_system=instance, sensor_type=sensor_type)
 
 
 class Measurement(models.Model):

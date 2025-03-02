@@ -41,9 +41,13 @@ class MeasurementViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         sensor = serializer.validated_data.get('sensor')
+
         if sensor.hydroponic_system.owner != self.request.user:
             raise serializers.ValidationError("Nie masz dostępu do tego sensora.")
+
         serializer.save()
+
+
 def register(request):
     if request.method == "POST":
         form = UserRegisterForm(request.POST)
@@ -55,6 +59,7 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, "users/register.html", {"form": form})
+
 
 def home(request):
     hydroponic_systems_form = HydroponicSystemForm()
