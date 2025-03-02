@@ -10,7 +10,6 @@
             <form method="POST" class="p-4 shadow bg-white rounded">
                 {% csrf_token %}
 
-                <!-- Wyświetlanie błędów -->
                 {% if form.errors %}
                     <div class="alert alert-danger">
                         <strong>Wystąpiły błędy w formularzu:</strong>

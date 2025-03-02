@@ -1,16 +1,12 @@
 from rest_framework import viewsets, permissions, generics, filters
 from .serializers import HydroponicSystemSerializer, MeasurementSerializer, SensorSerializer, HydroponicSystemDetailSerializer
 from django.contrib import messages
-from .forms import UserRegisterForm, HydroponicSystemForm
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Sensor, Measurement, HydroponicSystem
+from .forms import UserRegisterForm
+from .models import Sensor
 from django_filters.rest_framework import DjangoFilterBackend
 from .pagination import StandardResultsSetPagination
 from .filters import MeasurementFilter
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .models import HydroponicSystem
 from .forms import HydroponicSystemForm, MeasurementForm
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404

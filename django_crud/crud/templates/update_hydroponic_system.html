@@ -11,7 +11,6 @@
             <form method="POST" class="p-4 shadow bg-white rounded">
                 {% csrf_token %}
 
-                <!-- Obsługa błędów -->
                 {% if hydroponic_systems_form.errors %}
                     <div class="alert alert-danger">
                         <strong>Wystąpiły błędy w formularzu:</strong>

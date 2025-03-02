@@ -11,7 +11,6 @@
             <form method="POST" class="p-4 shadow bg-white rounded">
                 {% csrf_token %}
 
-                <!-- Obsługa błędów -->
                 {% if form.errors %}
                     <div class="alert alert-danger">
                         <strong>Wystąpiły błędy w formularzu:</strong>
@@ -25,7 +24,6 @@
                     </div>
                 {% endif %}
 
-                <!-- Wybór czujnika -->
                 <div class="mb-3">
                     <label for="sensor" class="form-label">Wybierz czujnik:</label>
                     <select name="sensor" id="sensor" class="form-select">
@@ -35,19 +33,16 @@
                     </select>
                 </div>
 
-                <!-- Wartość pomiaru -->
                 <div class="mb-3">
                     <label for="value" class="form-label">Wartość pomiaru:</label>
                     <input type="number" step="0.01" name="value" class="form-control" required>
                 </div>
 
-                <!-- Data i godzina (opcjonalnie) -->
                 <div class="mb-3">
-                    <label for="timestamp" class="form-label">Data i godzina (opcjonalnie):</label>
+                    <label for="timestamp" class="form-label">Data i godzina (brak wyboru doda pomiar z aktualnym czasem):</label>
                     <input type="datetime-local" name="timestamp" class="form-control">
                 </div>
 
-                <!-- Przycisk dodawania -->
                 <button type="submit" class="btn btn-success w-100">✅ Dodaj</button>
             </form>
 

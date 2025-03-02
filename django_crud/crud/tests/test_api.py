@@ -2,7 +2,6 @@ import pytest
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 from crud.models import HydroponicSystem, Sensor, Measurement
-from django.utils.timezone import now
 
 
 @pytest.mark.django_db

@@ -21,13 +21,4 @@ urlpatterns = [
     path('hydroponic_system/add/', add_hydroponic_system, name='add_hydroponic_system'),
     path("hydroponic_system/<int:hydroponic_system_id>/", hydroponic_system_detail, name="hydroponic_system_detail"),
     path("hydroponic_system/<int:hydroponic_system_id>/add_measurement/", add_measurement, name="add_measurement"),
-
-
-
-
-
-
-
-
-
 ]

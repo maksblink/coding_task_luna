@@ -7,7 +7,6 @@
     <h1 class="text-center">{{ hydroponic_system.name }}</h1>
     <p class="text-muted text-center"><strong>Opis:</strong> {{ hydroponic_system.description }}</p>
 
-    <!-- Sekcja Czujników -->
     <h2 class="mt-4">📡 Czujniki</h2>
     <ul class="list-group">
         {% for sensor in sensors %}
@@ -17,7 +16,6 @@
         {% endfor %}
     </ul>
 
-    <!-- Ostatnie 10 pomiarów -->
     <h2 class="mt-4">📊 Ostatnie 10 pomiarów</h2>
     <ul class="list-group">
         {% for measurement in recent_measurements %}
@@ -31,7 +29,6 @@
         {% endfor %}
     </ul>
 
-    <!-- Filtracja pomiarów -->
     <h2 class="mt-4">🔍 Filtruj pomiary</h2>
     <form method="GET" class="p-4 shadow bg-white rounded">
         <div class="row">
@@ -69,7 +66,6 @@
         <button type="submit" class="btn btn-primary mt-3 w-100">🔎 Filtruj</button>
     </form>
 
-    <!-- Lista pomiarów -->
     <h2 class="mt-4">📊 Pomiary</h2>
     <ul class="list-group">
         {% for measurement in measurements %}
@@ -83,7 +79,6 @@
         {% endfor %}
     </ul>
 
-    <!-- Paginacja -->
     <nav class="mt-4">
         <ul class="pagination justify-content-center">
             {% if measurements.has_previous %}
@@ -110,7 +105,6 @@
         </ul>
     </nav>
 
-    <!-- Powrót do strony głównej -->
     <a href="{% url 'home' %}" class="btn btn-outline-secondary w-100 mt-3">⬅ Powrót do strony głównej</a>
 </div>
 {% endblock %}
