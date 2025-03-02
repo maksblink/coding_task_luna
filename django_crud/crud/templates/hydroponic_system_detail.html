@@ -1,89 +1,116 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ hydroponic_system.name }} - Szczegóły</title>
-</head>
-<body>
-    <h1>{{ hydroponic_system.name }}</h1>
-    <p><strong>Opis:</strong> {{ hydroponic_system.description }}</p>
+{% extends 'base.html' %}
 
-    <h2>📡 Czujniki</h2>
-    <ul>
+{% block title %}{{ hydroponic_system.name }} - Szczegóły{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">{{ hydroponic_system.name }}</h1>
+    <p class="text-muted text-center"><strong>Opis:</strong> {{ hydroponic_system.description }}</p>
+
+    <!-- Sekcja Czujników -->
+    <h2 class="mt-4">📡 Czujniki</h2>
+    <ul class="list-group">
         {% for sensor in sensors %}
-            <li><strong>{{ sensor.sensor_type }}</strong></li>
+            <li class="list-group-item"><strong>{{ sensor.sensor_type }}</strong></li>
         {% empty %}
-            <li>Brak czujników</li>
+            <li class="list-group-item text-muted">Brak czujników</li>
         {% endfor %}
     </ul>
 
-    <h2>📊 Ostatnie 10 pomiarów</h2>
-    <ul>
+    <!-- Ostatnie 10 pomiarów -->
+    <h2 class="mt-4">📊 Ostatnie 10 pomiarów</h2>
+    <ul class="list-group">
         {% for measurement in recent_measurements %}
-            <li>
+            <li class="list-group-item">
                 <strong>{{ measurement.sensor.sensor_type }}</strong>:
                 {{ measurement.value }}
-                ({{ measurement.timestamp }})
+                <span class="text-muted">({{ measurement.timestamp }})</span>
             </li>
         {% empty %}
-            <li>Brak pomiarów</li>
+            <li class="list-group-item text-muted">Brak pomiarów</li>
         {% endfor %}
     </ul>
 
-    <h2>🔍 Filtruj pomiary</h2>
-    <form method="GET">
-        <label for="start_date">Od:</label>
-        <input type="datetime-local" name="start_date" value="{{ start_date }}">
+    <!-- Filtracja pomiarów -->
+    <h2 class="mt-4">🔍 Filtruj pomiary</h2>
+    <form method="GET" class="p-4 shadow bg-white rounded">
+        <div class="row">
+            <div class="col-md-6">
+                <label for="start_date" class="form-label">Od:</label>
+                <input type="datetime-local" name="start_date" value="{{ start_date }}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="end_date" class="form-label">Do:</label>
+                <input type="datetime-local" name="end_date" value="{{ end_date }}" class="form-control">
+            </div>
+        </div>
 
-        <label for="end_date">Do:</label>
-        <input type="datetime-local" name="end_date" value="{{ end_date }}">
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <label for="min_value" class="form-label">Min wartość:</label>
+                <input type="number" step="0.01" name="min_value" value="{{ min_value }}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="max_value" class="form-label">Max wartość:</label>
+                <input type="number" step="0.01" name="max_value" value="{{ max_value }}" class="form-control">
+            </div>
+        </div>
 
-        <label for="min_value">Min wartość:</label>
-        <input type="number" step="0.01" name="min_value" value="{{ min_value }}">
+        <div class="mt-2">
+            <label for="sort_by" class="form-label">Sortuj wg:</label>
+            <select name="sort_by" class="form-select">
+                <option value="-timestamp" {% if sort_by == "-timestamp" %}selected{% endif %}>Najnowsze</option>
+                <option value="timestamp" {% if sort_by == "timestamp" %}selected{% endif %}>Najstarsze</option>
+                <option value="value" {% if sort_by == "value" %}selected{% endif %}>Najmniejsza wartość</option>
+                <option value="-value" {% if sort_by == "-value" %}selected{% endif %}>Największa wartość</option>
+            </select>
+        </div>
 
-        <label for="max_value">Max wartość:</label>
-        <input type="number" step="0.01" name="max_value" value="{{ max_value }}">
-
-        <label for="sort_by">Sortuj wg:</label>
-        <select name="sort_by">
-            <option value="-timestamp" {% if sort_by == "-timestamp" %}selected{% endif %}>Najnowsze</option>
-            <option value="timestamp" {% if sort_by == "timestamp" %}selected{% endif %}>Najstarsze</option>
-            <option value="value" {% if sort_by == "value" %}selected{% endif %}>Najmniejsza wartość</option>
-            <option value="-value" {% if sort_by == "-value" %}selected{% endif %}>Największa wartość</option>
-        </select>
-
-        <button type="submit">🔎 Filtruj</button>
+        <button type="submit" class="btn btn-primary mt-3 w-100">🔎 Filtruj</button>
     </form>
 
-    <h2>📊 Pomiary</h2>
-    <ul>
+    <!-- Lista pomiarów -->
+    <h2 class="mt-4">📊 Pomiary</h2>
+    <ul class="list-group">
         {% for measurement in measurements %}
-            <li>
+            <li class="list-group-item">
                 <strong>{{ measurement.sensor.sensor_type }}</strong>:
                 {{ measurement.value }}
-                ({{ measurement.timestamp }})
+                <span class="text-muted">({{ measurement.timestamp }})</span>
             </li>
         {% empty %}
-            <li>Brak pomiarów</li>
+            <li class="list-group-item text-muted">Brak pomiarów</li>
         {% endfor %}
     </ul>
 
-    <div>
-        {% if measurements.has_previous %}
-            <a href="?page=1">⏮ Pierwsza</a>
-            <a href="?page={{ measurements.previous_page_number }}">⬅ Poprzednia</a>
-        {% endif %}
+    <!-- Paginacja -->
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if measurements.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">⏮ Pierwsza</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ measurements.previous_page_number }}">⬅ Poprzednia</a>
+                </li>
+            {% endif %}
 
-        <span>Strona {{ measurements.number }} z {{ measurements.paginator.num_pages }}</span>
+            <li class="page-item disabled">
+                <span class="page-link">Strona {{ measurements.number }} z {{ measurements.paginator.num_pages }}</span>
+            </li>
 
-        {% if measurements.has_next %}
-            <a href="?page={{ measurements.next_page_number }}">Następna ➡</a>
-            <a href="?page={{ measurements.paginator.num_pages }}">⏭ Ostatnia</a>
-        {% endif %}
-    </div>
+            {% if measurements.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ measurements.next_page_number }}">Następna ➡</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ measurements.paginator.num_pages }}">⏭ Ostatnia</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
 
-    <br>
-    <a href="{% url 'home' %}">⬅ Powrót do strony głównej</a>
-</body>
-</html>
+    <!-- Powrót do strony głównej -->
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary w-100 mt-3">⬅ Powrót do strony głównej</a>
+</div>
+{% endblock %}

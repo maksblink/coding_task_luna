@@ -1,35 +1,59 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dodaj pomiar</title>
-</head>
-<body>
-    <h1>Dodaj pomiar do systemu: {{ hydroponic_system.name }}</h1>
+{% extends 'base.html' %}
 
-    <form method="POST">
-        {% csrf_token %}
-        <label for="sensor">Wybierz czujnik:</label>
-        <select name="sensor" id="sensor">
-            {% for sensor in sensors %}
-                <option value="{{ sensor.id }}">{{ sensor.sensor_type }}</option>
-            {% endfor %}
-        </select>
+{% block title %}Dodaj pomiar{% endblock %}
 
-        <br>
-        <label for="value">Wartość pomiaru:</label>
-        <input type="number" step="0.01" name="value" required>
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Dodaj pomiar do systemu: <strong>{{ hydroponic_system.name }}</strong></h1>
 
-        <br>
-        <label for="timestamp">Data i godzina (opcjonalnie):</label>
-        <input type="datetime-local" name="timestamp">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="POST" class="p-4 shadow bg-white rounded">
+                {% csrf_token %}
 
-        <br>
-        <button type="submit">✅ Dodaj</button>
-    </form>
+                <!-- Obsługa błędów -->
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Wystąpiły błędy w formularzu:</strong>
+                        <ul>
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
 
-    <br>
-    <a href="{% url 'home' %}">⬅ Powrót do strony głównej</a>
-</body>
-</html>
+                <!-- Wybór czujnika -->
+                <div class="mb-3">
+                    <label for="sensor" class="form-label">Wybierz czujnik:</label>
+                    <select name="sensor" id="sensor" class="form-select">
+                        {% for sensor in sensors %}
+                            <option value="{{ sensor.id }}">{{ sensor.sensor_type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Wartość pomiaru -->
+                <div class="mb-3">
+                    <label for="value" class="form-label">Wartość pomiaru:</label>
+                    <input type="number" step="0.01" name="value" class="form-control" required>
+                </div>
+
+                <!-- Data i godzina (opcjonalnie) -->
+                <div class="mb-3">
+                    <label for="timestamp" class="form-label">Data i godzina (opcjonalnie):</label>
+                    <input type="datetime-local" name="timestamp" class="form-control">
+                </div>
+
+                <!-- Przycisk dodawania -->
+                <button type="submit" class="btn btn-success w-100">✅ Dodaj</button>
+            </form>
+
+            <br>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary w-100">⬅ Powrót do strony głównej</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

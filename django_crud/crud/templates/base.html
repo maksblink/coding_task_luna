@@ -19,11 +19,26 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">🌱 HydroSystem</a>
-            <div class="collapse navbar-collapse">
+
+            <!-- Przycisk rozwijania menu na małych ekranach -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">🏠 Strona Główna</a>
+                    </li>
+
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">🚪 Wyloguj</a>
+                            <form action="{% url 'logout' %}" method="post" class="nav-link">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm px-3 py-1 rounded-3 shadow-sm">
+                                    🚪 Wyloguj się
+                                </button>
+                            </form>
                         </li>
                     {% else %}
                         <li class="nav-item">

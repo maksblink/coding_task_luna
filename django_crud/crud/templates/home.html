@@ -1,41 +1,44 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Hydroponiczny</title>
-</head>
-<body>
-    <h1>Witaj w systemie hydroponicznym!</h1>
+{% extends 'base.html' %}
+
+{% block title %}Strona Główna - System Hydroponiczny{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">🌱 Witaj w systemie hydroponicznym!</h1>
 
     {% if user.is_authenticated %}
-        <h2>{{ user.username }} Twoje Systemy Hydroponiczne:</h2>
-        <ul>
-            {% for hydroponic_system in hydroponic_systems %}
-                <li>
-                    <strong>{{ hydroponic_system.name }}</strong> - {{ hydroponic_system.description }}
-                    <a href="{% url 'update_hydroponic_system' hydroponic_system.id %}">✏ Edytuj</a>
-                    <a href="{% url 'delete_hydroponic_system' hydroponic_system.id %}" onclick="return confirm('Na pewno usunąć?')">❌ Usuń</a>
-                    <a href="{% url 'hydroponic_system_detail' hydroponic_system.id %}">👀 Zobacz szczegóły</a>
-                    <a href="{% url 'add_measurement' hydroponic_system.id %}">📥 Dodaj pomiar</a>
-                </li>
-            {% empty %}
-                <li>Nie masz jeszcze żadnych systemów.</li>
-            {% endfor %}
-        </ul>
+        <h2 class="mt-4">{{ user.username }}, Twoje Systemy Hydroponiczne:</h2>
 
-        <h2>Dodaj nowy system</h2>
-        <a href="{% url 'add_hydroponic_system' %}">➕ Dodaj nowy system</a>
+        {% if hydroponic_systems %}
+            <ul class="list-group">
+                {% for hydroponic_system in hydroponic_systems %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ hydroponic_system.name }}</strong> - {{ hydroponic_system.description }}
+                        </div>
+                        <div>
+                            <a href="{% url 'update_hydroponic_system' hydroponic_system.id %}" class="btn btn-warning btn-sm">✏ Edytuj</a>
+                            <a href="{% url 'delete_hydroponic_system' hydroponic_system.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Na pewno usunąć?')">❌ Usuń</a>
+                            <a href="{% url 'hydroponic_system_detail' hydroponic_system.id %}" class="btn btn-info btn-sm">👀 Szczegóły</a>
+                            <a href="{% url 'add_measurement' hydroponic_system.id %}" class="btn btn-success btn-sm">📥 Dodaj pomiar</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted mt-3">Nie masz jeszcze żadnych systemów hydroponicznych.</p>
+        {% endif %}
 
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit">🚪 Wyloguj się</button>
-        </form>
+        <h2 class="mt-4">➕ Dodaj nowy system</h2>
+        <a href="{% url 'add_hydroponic_system' %}" class="btn btn-primary">Dodaj system</a>
+
 
     {% else %}
-        <p>Nie jesteś zalogowany. Zaloguj się lub zarejestruj.</p>
-        <a href="{% url 'login' %}">🔑 Zaloguj się</a> |
-        <a href="{% url 'register' %}">📝 Zarejestruj się</a>
+        <p class="text-center mt-4">Nie jesteś zalogowany. <br> Zaloguj się lub zarejestruj.</p>
+        <div class="text-center">
+            <a href="{% url 'login' %}" class="btn btn-primary">🔑 Zaloguj się</a>
+            <a href="{% url 'register' %}" class="btn btn-outline-secondary">📝 Zarejestruj się</a>
+        </div>
     {% endif %}
-</body>
-</html>
+</div>
+{% endblock %}
