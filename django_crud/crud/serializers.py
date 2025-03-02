@@ -1,9 +1,8 @@
 from rest_framework import serializers
-from .models import HydroponicSystem, Measurement, Sensor
+from .models import Measurement, Sensor, HydroponicSystem
 
 
 class MeasurementSerializer(serializers.ModelSerializer):
-
 
     class Meta:
         model = Measurement
@@ -12,34 +11,29 @@ class MeasurementSerializer(serializers.ModelSerializer):
 
 
 class SensorSerializer(serializers.ModelSerializer):
-    measurements = MeasurementSerializer(many=True, read_only=True)
-
+    recent_measurements = serializers.SerializerMethodField()
 
     class Meta:
         model = Sensor
-        fields = ['id', 'hydroponic_system', 'sensor_type', 'measurements']
+        fields = ['id', 'hydroponic_system', 'sensor_type', 'recent_measurements']
+
+    def get_recent_measurements(self, obj):
+        measurements = obj.measurements.order_by('-timestamp')[:10]
+        return MeasurementSerializer(measurements, many=True).data
 
 
 class HydroponicSystemSerializer(serializers.ModelSerializer):
-    sensors = serializers.StringRelatedField(many=True, read_only=True)
-
+    sensors = SensorSerializer(many=True, read_only=True)
 
     class Meta:
         model = HydroponicSystem
-        fields = ['id', 'owner', 'name', 'description', 'created_at', 'updated_at', 'sensors']
-        read_only_fields = ['owner', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'description', 'created_at', 'sensors']
+        read_only_fields = ['created_at']
 
 
 class HydroponicSystemDetailSerializer(serializers.ModelSerializer):
-    sensors = serializers.StringRelatedField(many=True, read_only=True)
-    recent_measurements = serializers.SerializerMethodField()
-
+    sensors = SensorSerializer(many=True, read_only=True)
 
     class Meta:
         model = HydroponicSystem
-        fields = ['id', 'owner', 'name', 'description', 'created_at', 'updated_at', 'sensors', 'recent_measurements']
-
-
-    def get_recent_measurements(self, obj):
-        measurements = Measurement.objects.filter(sensor__hydroponic_system=obj).order_by('-timestamp')[:10]
-        return MeasurementSerializer(measurements, many=True).data
+        fields = ['id', 'name', 'description', 'created_at', 'sensors']

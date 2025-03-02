@@ -10,10 +10,10 @@ class HydroponicSystem(models.Model):
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="hydroponic_systems")
 
     def __str__(self):
-        return self.name
+        return f"name = {self.name}, owner = ({self.owner.username})"
 
 
 def get_default_system():
@@ -31,14 +31,7 @@ class Sensor(models.Model):
     sensor_type = models.CharField(max_length=20, choices=SYSTEM_SENSORS)
 
     def __str__(self):
-        return f"{self.sensor_type} - {self.hydroponic_system.name}"
-
-
-@receiver(post_save, sender=HydroponicSystem)
-def create_sensors(sender, instance, created, **kwargs):
-    if created:
-        for sensor_type, _ in Sensor.SYSTEM_SENSORS:
-            Sensor.objects.create(hydroponic_system=instance, sensor_type=sensor_type)
+        return f"sensor_type = {self.sensor_type}, hydroponic_system = {self.hydroponic_system.name}"
 
 
 class Measurement(models.Model):
@@ -47,4 +40,11 @@ class Measurement(models.Model):
     timestamp = models.DateTimeField(default=now)
 
     def __str__(self):
-        return f"{self.sensor.sensor_type}: {self.value} ({self.timestamp})"
+        return f"sensor_type = {self.sensor.sensor_type}, hydroponic_system = {self.sensor.hydroponic_system.name}, value = {self.value}, timestamp = {self.timestamp}"
+
+
+@receiver(post_save, sender=HydroponicSystem)
+def create_sensors(sender, instance, created, **kwargs):
+    if created:
+        for sensor_type, _ in Sensor.SYSTEM_SENSORS:
+            Sensor.objects.create(hydroponic_system=instance, sensor_type=sensor_type)
