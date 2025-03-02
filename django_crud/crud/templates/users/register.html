@@ -1,17 +1,36 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rejestracja</title>
-</head>
-<body>
-    <h2>Rejestracja</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Zarejestruj się</button>
-    </form>
-    <p>Masz już konto? <a href="{% url 'login' %}">Zaloguj się</a></p>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Rejestracja{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center">Rejestracja</h2>
+            <form method="POST" class="p-4 shadow bg-white rounded">
+                {% csrf_token %}
+
+                <!-- Wyświetlanie błędów -->
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Wystąpiły błędy w formularzu:</strong>
+                        <ul>
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {{ form.as_p }}
+
+                <button type="submit" class="btn btn-success w-100">Zarejestruj się</button>
+            </form>
+
+            <p class="text-center mt-3">Masz już konto? <a href="{% url 'login' %}">Zaloguj się</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

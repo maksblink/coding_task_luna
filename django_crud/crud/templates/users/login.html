@@ -1,16 +1,19 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>Logowanie</title>
-</head>
-<body>
-    <h2>Zaloguj się</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Zaloguj</button>
-    </form>
-    <p>Nie masz konta? <a href="{% url 'register' %}">Zarejestruj się</a></p>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Logowanie{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center">Zaloguj się</h2>
+            <form method="post" class="p-4 shadow bg-white rounded">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary w-100">Zaloguj</button>
+            </form>
+            <p class="text-center mt-3">Nie masz konta? <a href="{% url 'register' %}">Zarejestruj się</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
