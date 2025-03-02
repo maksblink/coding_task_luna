@@ -12,6 +12,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import HydroponicSystem
 from .forms import HydroponicSystemForm, MeasurementForm
+from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import HydroponicSystem, Measurement
+from django.utils.dateparse import parse_datetime
 
 
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
@@ -135,20 +140,56 @@ def add_hydroponic_system(request):
 
 @login_required
 def hydroponic_system_detail(request, hydroponic_system_id):
-    hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
-    sensors = hydroponic_system.sensors.all()
-    measurements = Measurement.objects.filter(sensor__hydroponic_system=hydroponic_system).order_by('-timestamp')[:10]
+    system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
+
+    measurements = Measurement.objects.filter(sensor__hydroponic_system=system)
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if start_date:
+        start_date = parse_datetime(start_date)
+        if start_date:
+            measurements = measurements.filter(timestamp__gte=start_date)
+
+    if end_date:
+        end_date = parse_datetime(end_date)
+        if end_date:
+            measurements = measurements.filter(timestamp__lte=end_date)
+
+    min_value = request.GET.get('min_value')
+    max_value = request.GET.get('max_value')
+
+    if min_value:
+        measurements = measurements.filter(value__gte=min_value)
+    if max_value:
+        measurements = measurements.filter(value__lte=max_value)
+
+    sort_by = request.GET.get('sort_by', '-timestamp')
+    if sort_by in ['value', '-value', 'timestamp', '-timestamp']:
+        measurements = measurements.order_by(sort_by)
+
+    paginator = Paginator(measurements, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    recent_measurements = measurements.order_by('-timestamp')[:10]
 
     return render(request, "hydroponic_system_detail.html", {
-        "hydroponic_system": hydroponic_system,
-        "sensors": sensors,
-        "measurements": measurements
+        "hydroponic_system": system,
+        "sensors": system.sensors.all(),
+        "measurements": page_obj,
+        "recent_measurements": recent_measurements,
+        "start_date": request.GET.get('start_date', ''),
+        "end_date": request.GET.get('end_date', ''),
+        "min_value": request.GET.get('min_value', ''),
+        "max_value": request.GET.get('max_value', ''),
+        "sort_by": request.GET.get('sort_by', '-timestamp'),
     })
 
 
 @login_required
 def add_measurement(request, hydroponic_system_id):
-    """Dodawanie nowego pomiaru do wybranego czujnika systemu"""
     system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
     sensors = system.sensors.all()
 
