@@ -23,11 +23,7 @@
         </ul>
 
         <h2>Dodaj nowy system</h2>
-        <form method="POST">
-            {% csrf_token %}
-            {{ hydroponic_systems_form.as_p }}
-            <button type="submit">Dodaj</button>
-        </form>
+        <a href="{% url 'add_hydroponic_system' %}">➕ Dodaj nowy system</a>
 
         <form action="{% url 'logout' %}" method="post">
             {% csrf_token %}

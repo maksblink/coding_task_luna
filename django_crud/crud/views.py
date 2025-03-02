@@ -8,6 +8,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .pagination import StandardResultsSetPagination
 from .filters import MeasurementFilter
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import HydroponicSystem
+from .forms import HydroponicSystemForm
 
 
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
@@ -91,8 +95,8 @@ def register(request):
 
 @login_required
 def home(request):
-    systems = HydroponicSystem.objects.all()
-    return render(request, "home.html", {"systems": systems})
+    hydroponic_systems = HydroponicSystem.objects.all()
+    return render(request, "home.html", {"hydroponic_systems": hydroponic_systems})
 
 
 def update_hydroponic_system(request, hydroponic_system_id):
@@ -133,3 +137,18 @@ class MeasurementListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = MeasurementFilter
     ordering_fields = ['timestamp', 'value']
+
+
+@login_required
+def add_hydroponic_system(request):
+    if request.method == "POST":
+        hydroponic_systems_form = HydroponicSystemForm(request.POST)
+        if hydroponic_systems_form.is_valid():
+            hydroponic_system = hydroponic_systems_form.save(commit=False)
+            hydroponic_system.owner = request.user
+            hydroponic_system.save()
+            return redirect('home')
+    else:
+        hydroponic_systems_form = HydroponicSystemForm()
+
+    return render(request, "add_hydroponic_system.html", {"hydroponic_systems_form": hydroponic_systems_form})
