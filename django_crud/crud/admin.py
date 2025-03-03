@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import HydroponicSystem
 
-# Register your models here.
+@admin.register(HydroponicSystem)
+class HydroponicSystemAdmin(admin.ModelAdmin):
+    list_display = ["name", "owner"]
+    search_fields = ["name", "owner__username"]

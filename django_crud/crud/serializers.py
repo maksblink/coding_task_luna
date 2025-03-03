@@ -7,7 +7,12 @@ class HydroponicSystemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HydroponicSystem
-        fields = ['id', 'owner', 'name', 'description', 'created_at', 'updated_at', 'sensors']
+        fields = ['id', 'name', 'description', 'created_at', 'updated_at', 'sensors']
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        validated_data["owner"] = request.user
+        return super().create(validated_data)
 
     def validate_name(self, value):
         if len(value) < 3:
