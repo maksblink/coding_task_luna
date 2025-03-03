@@ -1,4 +1,5 @@
 from rest_framework import viewsets, permissions, generics, filters, serializers
+from rest_framework.authentication import TokenAuthentication
 from .serializers import HydroponicSystemSerializer, SensorSerializer, MeasurementSerializer
 from django.contrib import messages
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,7 +16,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
@@ -238,3 +239,10 @@ def register(request):
             form = UserRegisterForm()
 
         return render(request, "users/register.html", {"form": form})
+
+
+@api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user_info(request):
+    return Response({"id": request.user.id, "username": request.user.username})

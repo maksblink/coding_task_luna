@@ -24,9 +24,20 @@ def register_and_get_token(id):
         return None
 
 
-def create_hydroponic_system(token, name, description):
+def get_user_id(token):
     headers = {"Authorization": f"Token {token}"}
-    data = {"name": name, "description": description}
+    response = requests.get(f"{BASE_URL}/me/", headers=headers)
+    if response.status_code == 200:
+        return response.json().get("id")
+    else:
+        print("❌ Błąd przy pobieraniu ID użytkownika:", response.json())
+        return None
+
+
+
+def create_hydroponic_system(token, name, description, user_id):
+    headers = {"Authorization": f"Token {token}"}
+    data = {"name": name, "description": description, "owner": user_id}
     response = requests.post(f"{BASE_URL}/hydroponic_system/", headers=headers, json=data)
 
     if response.status_code == 201:
@@ -66,39 +77,31 @@ def main():
     token_user_1 = register_and_get_token(0)
     token_user_2 = register_and_get_token(1)
 
-    if not token_user_1:
+    if not token_user_1 or not token_user_2:
         return
 
-    hydroponic_system_A_user_1 = create_hydroponic_system(token_user_1, "HydroSystem A", "duuuuupa A")
-    hydroponic_system_B_user_1 = create_hydroponic_system(token_user_1, "HydroSystem B", "duuuuupa B")
-    hydroponic_system_C_user_1 = create_hydroponic_system(token_user_1, "HydroSystem C", "duuuuupa C")
+    user1_id = get_user_id(token_user_1)
+    user2_id = get_user_id(token_user_2)
 
-    if hydroponic_system_A_user_1 and hydroponic_system_B_user_1 and hydroponic_system_C_user_1:
+    hydro1_A = create_hydroponic_system(token_user_1, "HydroSystem A", "duuuuupa A", user1_id)
+    hydro1_B = create_hydroponic_system(token_user_1, "HydroSystem B", "duuuuupa B", user1_id)
+    hydro1_C = create_hydroponic_system(token_user_1, "HydroSystem C", "duuuuupa C", user1_id)
+
+    hydro2_A = create_hydroponic_system(token_user_2, "HydroSystem A", "duuuuupa A", user2_id)
+    hydro2_B = create_hydroponic_system(token_user_2, "HydroSystem B", "duuuuupa B", user2_id)
+    hydro2_C = create_hydroponic_system(token_user_2, "HydroSystem C", "duuuuupa C", user2_id)
+
+    if all([hydro1_A, hydro1_B, hydro1_C, hydro2_A, hydro2_B, hydro2_C]):
         time.sleep(2)
 
-        sensors1 = get_sensors(token_user_1, hydroponic_system_A_user_1)
-        sensors2 = get_sensors(token_user_1, hydroponic_system_B_user_1)
-        sensors3 = get_sensors(token_user_1, hydroponic_system_C_user_1)
+        sensors1 = get_sensors(token_user_1, hydro1_A) + get_sensors(token_user_1, hydro1_B) + get_sensors(token_user_1, hydro1_C)
+        sensors2 = get_sensors(token_user_2, hydro2_A) + get_sensors(token_user_2, hydro2_B) + get_sensors(token_user_2, hydro2_C)
 
-        for sensor in sensors1 + sensors2 + sensors3:
+        for sensor in sensors1:
             create_measurement(token_user_1, sensor["id"], 6.8)
             create_measurement(token_user_1, sensor["id"], 7.1)
 
-    if not token_user_1:
-        return
-
-    hydroponic_system_A_user_2 = create_hydroponic_system(token_user_2, "HydroSystem A", "duuuuupa A")
-    hydroponic_system_B_user_2 = create_hydroponic_system(token_user_2, "HydroSystem B", "duuuuupa B")
-    hydroponic_system_C_user_2 = create_hydroponic_system(token_user_2, "HydroSystem C", "duuuuupa C")
-
-    if hydroponic_system_A_user_2 and hydroponic_system_B_user_2 and hydroponic_system_C_user_2:
-        time.sleep(2)
-
-        sensors1 = get_sensors(token_user_2, hydroponic_system_A_user_2)
-        sensors2 = get_sensors(token_user_2, hydroponic_system_B_user_2)
-        sensors3 = get_sensors(token_user_2, hydroponic_system_C_user_2)
-
-        for sensor in sensors1 + sensors2 + sensors3:
+        for sensor in sensors2:
             create_measurement(token_user_2, sensor["id"], 2.5)
             create_measurement(token_user_2, sensor["id"], 0.1)
 

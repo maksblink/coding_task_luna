@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import HydroponicSystemViewSet, MeasurementViewSet, SensorViewSet, home, update_hydroponic_system, delete_hydroponic_system, MeasurementListView, add_hydroponic_system, hydroponic_system_detail, add_measurement, register
+from .views import get_user_info, HydroponicSystemViewSet, MeasurementViewSet, SensorViewSet, home, update_hydroponic_system, delete_hydroponic_system, MeasurementListView, add_hydroponic_system, hydroponic_system_detail, add_measurement, register
 from rest_framework.authtoken.views import obtain_auth_token
 from django.contrib.auth import views as auth_views
 
@@ -17,6 +17,7 @@ urlpatterns = [
     path("api/register/", register, name="register"),
     path('api/', include(router.urls)),
     path('api/token/', obtain_auth_token, name='api_token_auth'),
+    path("api/me/", get_user_info, name="get_user_info"),
     path('', home, name='home'),
     path("hydroponic_system/update/<int:hydroponic_system_id>/", update_hydroponic_system, name="update_hydroponic_system"),
     path("hydroponic_system/delete/<int:hydroponic_system_id>/", delete_hydroponic_system, name="delete_hydroponic_system"),
