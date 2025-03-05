@@ -7,12 +7,11 @@ from .pagination import StandardResultsSetPagination
 from .filters import MeasurementFilter
 from .forms import HydroponicSystemForm, MeasurementForm, UserRegisterForm
 from django.core.paginator import Paginator
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import HydroponicSystem, Measurement, Sensor
+from .models import HydroponicSystem, Sensor, Measurement
 from django.utils.dateparse import parse_datetime
 from django.core.exceptions import ValidationError
-from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -77,12 +76,22 @@ class MeasurementViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
+class MeasurementListView(generics.ListAPIView):
+    queryset = Measurement.objects.all()
+    serializer_class = MeasurementSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = MeasurementFilter
+    ordering_fields = ['timestamp', 'value']
+
+
 @login_required
 def home(request):
     hydroponic_systems = HydroponicSystem.objects.filter(owner=request.user)
     return render(request, "home.html", {"hydroponic_systems": hydroponic_systems})
 
 
+@login_required
 def update_hydroponic_system(request, hydroponic_system_id):
     hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
     if request.method == "POST":
@@ -96,19 +105,11 @@ def update_hydroponic_system(request, hydroponic_system_id):
     return render(request, "update_hydroponic_system.html", {"hydroponic_systems_form": hydroponic_systems_form})
 
 
+@login_required
 def delete_hydroponic_system(request, hydroponic_system_id):
     hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
     hydroponic_system.delete()
     return redirect('home')
-
-
-class MeasurementListView(generics.ListAPIView):
-    queryset = Measurement.objects.all()
-    serializer_class = MeasurementSerializer
-    pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_class = MeasurementFilter
-    ordering_fields = ['timestamp', 'value']
 
 
 @login_required
@@ -126,6 +127,7 @@ def add_hydroponic_system(request):
     return render(request, "add_hydroponic_system.html", {"hydroponic_systems_form": hydroponic_systems_form})
 
 
+@login_required
 def hydroponic_system_detail(request, hydroponic_system_id):
     hydroponic_system = get_object_or_404(HydroponicSystem, id=hydroponic_system_id, owner=request.user)
     measurements = Measurement.objects.filter(sensor__hydroponic_system=hydroponic_system)

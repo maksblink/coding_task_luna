@@ -9,6 +9,7 @@
             <h2 class="text-center">Zaloguj się</h2>
             <form method="post" class="p-4 shadow bg-white rounded">
                 {% csrf_token %}
+
                 {{ form.as_p }}
                 <button type="submit" class="btn btn-primary w-100">Zaloguj</button>
             </form>

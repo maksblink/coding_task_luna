@@ -90,11 +90,17 @@ def main():
     while True:
         print("⏳ Generowanie nowych pomiarów...")
         for sensor in sensors:
-            random_value = round(random.uniform(0.0, 14.0), 2)  # pH w zakresie 0-14
+            if sensor["sensor_type"] == "pH":
+                random_value = round(random.uniform(0.0, 14.0), 2)
+            elif sensor["sensor_type"] == "temperature":
+                random_value = round(random.uniform(-273.15, 999), 2)
+            else:
+                random_value = round(random.uniform(-999, 999), 2)
+
             create_measurement(token, sensor["id"], random_value)
 
         print("⏳ Czekam 60 sekund na kolejne pomiary...")
-        time.sleep(10)  # Czekaj 60 sekund
+        time.sleep(1)  # Czekaj 60 sekund
 
 
 if __name__ == "__main__":

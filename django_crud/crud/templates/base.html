@@ -31,6 +31,7 @@
                         <li class="nav-item">
                             <form action="{% url 'logout' %}" method="post" class="nav-link">
                                 {% csrf_token %}
+
                                 <button type="submit" class="btn btn-outline-danger btn-sm px-3 py-1 rounded-3 shadow-sm">
                                     🚪 Wyloguj się
                                 </button>
